@@ -1,31 +1,9 @@
+from bin import sql, course
+
 import praw
 import os
 import re
-import configparser
 
-# less typing for me
-workingDir = os.path.dirname(os.path.realpath(__file__))
-
-# check if a config.ini file exists
-config = configparser.ConfigParser()
-if (not os.path.isfile(workingDir + '/config.ini')):
-    config['ACCOUNT'] = {}
-    config['ACCOUNT']['CLIENT_ID'] = 'id'
-    config['ACCOUNT']['CLIENT_SECRET'] = 'secret'
-    config['ACCOUNT']['USER_AGENT'] = 'script:umanitoba_bot:v0.1[dev] (by /u/_Armpit)'
-    config['ACCOUNT']['USERNAME'] = 'usrname'
-    config['ACCOUNT']['PASSWORD'] = 'passwrd'
-
-    try:
-        with open(workingDir + '/config.ini', 'w') as file:
-            config.write(file)
-    except Exception as e:
-        print(e)
-        exit()
-
-# read the config file and create a reddit instance
-# TODO: should probably check if the config file is actually set
-config.read(workingDir + '/config.ini')
 reddit = praw.Reddit(
     client_id = config['ACCOUNT']['CLIENT_ID'],
     client_secret = config['ACCOUNT']['CLIENT_SECRET'],
