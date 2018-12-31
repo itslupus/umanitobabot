@@ -1,11 +1,12 @@
-from bin import sql, course
+from src.config import Config
+from src.sql import SQL
 
 import praw
 import os
 import re
 
-initDB()
-initConfig()
+config = Config()
+sql = SQL()
 
 reddit = praw.Reddit(
     client_id = config.getItem('ACCOUNT', 'CLIENT_ID'),
@@ -15,7 +16,6 @@ reddit = praw.Reddit(
     password = config.getItem('ACCOUNT', 'PASSWORD')
 )
 
-'''
 try:
     for submission in reddit.subreddit('armpit_test').stream.submissions(skip_existing = True):
         # find all that matches ABCD 1234
@@ -26,4 +26,3 @@ try:
 except Exception as e:
     print(e)
     exit()
-''' and None
