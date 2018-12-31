@@ -4,14 +4,18 @@ import praw
 import os
 import re
 
+initDB()
+initConfig()
+
 reddit = praw.Reddit(
-    client_id = config['ACCOUNT']['CLIENT_ID'],
-    client_secret = config['ACCOUNT']['CLIENT_SECRET'],
-    user_agent = config['ACCOUNT']['USER_AGENT'],
-    username = config['ACCOUNT']['USERNAME'],
-    password = config['ACCOUNT']['PASSWORD']
+    client_id = config.getItem('ACCOUNT', 'CLIENT_ID'),
+    client_secret = config.getItem('ACCOUNT', 'CLIENT_SECRET'),
+    user_agent = config.getItem('ACCOUNT', 'USER_AGENT'),
+    username = config.getItem('ACCOUNT', 'USERNAME'),
+    password = config.getItem('ACCOUNT', 'PASSWORD')
 )
 
+'''
 try:
     for submission in reddit.subreddit('armpit_test').stream.submissions(skip_existing = True):
         # find all that matches ABCD 1234
@@ -22,3 +26,4 @@ try:
 except Exception as e:
     print(e)
     exit()
+''' and None

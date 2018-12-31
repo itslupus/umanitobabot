@@ -1,6 +1,7 @@
 from lxml import html
 import requests
 
+'''
 xxxx = '201910'
 yyyy = 'COMP'
 zzzz = '2160'
@@ -24,3 +25,4 @@ if (response.status_code == 200):
 # BBBB = number (1240)
 
 # https://aurora.umanitoba.ca/banprod/bwckctlg.p_disp_course_detail?cat_term_in=XXXXYY&subj_code_in=AAA&crse_numb_in=BBBB
+''' and None
