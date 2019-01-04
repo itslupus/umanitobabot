@@ -6,6 +6,7 @@ from src import webscrape
 import praw
 import os
 import re
+import time
 
 # setup config file and SQL
 config = Config()
@@ -20,15 +21,11 @@ reddit = praw.Reddit(
     password = config.getItem('ACCOUNT', 'PASSWORD')
 )
 
-#
-#
-#   REMEMBER TO CHANGE 3 TO 4 IN FIND
-#
-#
 def findCourses(string):
     # [A-Z]{4}  match a 4 character string from A to Z
+    # ' '?      match space or no space
     # [0-9]{4}  match 4 digit number from 0 to 9
-    matches = re.findall(r'[A-Z]{3} [0-9]{3}', string.upper())
+    matches = re.findall(r'[A-Z]{4} ?[0-9]{4}', string.upper())
 
     return matches
 
@@ -61,8 +58,20 @@ for new in stream:
         info = webscrape.getAuroraCourse(courseSplit[0], courseSplit[1])
 ''' and None
 
-temp1 = sql.getCourseInfo('COMP', '2160')
-print(temp1)
 
-#r = webscrape.getAuroraCourse('COMP', '2160')
-#print(r['desc'])
+result = webscrape.getAuroraCourse('COMP', '2140')
+print(result)
+
+'''
+get = sql.getCourseInfo('COMP', '2140')
+
+if (get != None):
+    t = time.time()
+    
+    if (get['last_update'] + (60 * 1) < t):
+        result = webscrape.getAuroraCourse('COMP', '2140')
+        sql.updateCourseInfo(get['id'], result['title'], result['desc'], result['notHeld'], result['preReq'])
+else:
+    result = webscrape.getAuroraCourse('COMP', '2140')
+    sql.insertCourseInfo('COMP', 2140, result['title'], result['desc'], result['notHeld'], result['preReq'])
+''' and None

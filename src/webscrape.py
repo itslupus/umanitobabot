@@ -1,5 +1,7 @@
 from lxml import html
+
 import requests
+import re
 
 def getAuroraCourse(subject, number):
     # 1.1 = year (2019)
@@ -15,11 +17,23 @@ def getAuroraCourse(subject, number):
     if (response.status_code == 200):
         page = html.fromstring(response.content)
 
+        description = page.xpath('//td[@class="ntdefault"]/text()')[0]
+
         results = {}
-        results['title'] = page.xpath('//td[@class="nttitle"]/text()')
-        results['desc'] = page.xpath('//td[@class="ntdefault"]/text()')
+        results['title'] = page.xpath('//td[@class="nttitle"]/text()')[0]
+        results['desc'] = description
+        results['notHeld'] = findNotHeld(description)
+        results['preReq'] = findPrereq(description)
 
         return results
 
     return None
 
+def findNotHeld(desc):
+    match = re.findall(r'(?<=May not be held with )(.*?)\.', desc)
+    return match
+
+def findPrereq(desc):
+    # regex HELL
+    match = re.findall(r'(?:(?<=Prerequisite: )|(?<=Prerequisites: ))(.*?)\.', desc)
+    return match
