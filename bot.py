@@ -27,11 +27,16 @@ def findCourses(string):
     # [0-9]{4}  match 4 digit number from 0 to 9
     matches = re.findall(r'[A-Z]{4} ?[0-9]{4}', string.upper())
 
+    # get all the courses and seperate sub and number (COMP2160 -> COMP 2160)
+    for key, value in enumerate(matches):
+        if (len(matches[key].split()) != 2):
+            matches[key] = ' '.join(value[i:i + 4] for i in range(0,len(value), 4))
+
     return matches
 
 # https://www.reddit.com/r/redditdev/comments/7jng5a/whats_the_best_way_to_monitorreply_to_comments/dr7qn4p/
-# solution to having a stream of comments and submissions
-def submissions_and_comments(subreddit, **kwargs):
+# solution from another user to having a stream of comments and submissions
+def customStream(subreddit, **kwargs):
     # create array of comments and submissions
     results = []
     results.extend(subreddit.new(**kwargs))
@@ -40,38 +45,57 @@ def submissions_and_comments(subreddit, **kwargs):
 
     return results
 
-'''
-# continous stream, anything past this is included in the loop
-stream = praw.models.util.stream_generator(lambda **kwargs: submissions_and_comments(reddit.subreddit('armpit_test'), **kwargs), skip_existing = False)
-for new in stream:
-    content = None
+# continous stream, anything in this is included in the loop
+def __run__():
+    doReply = False
 
-    if (type(new) is praw.models.Submission):
-        content = new.title + ' ' + new.selftext
-    elif (type(new) is praw.models.Comment):
-        content = new.body
+    stream = praw.models.util.stream_generator(lambda **kwargs: submissions_and_comments(reddit.subreddit('armpit_test'), **kwargs), skip_existing = True)
+    for new in stream:
+        content = None
 
-    courses = findCourses(content)
+        if (type(new) is praw.models.Submission):
+            content = new.title + ' ' + new.selftext
+        elif (type(new) is praw.models.Comment):
+            # TODO find comments with [ABCD 1234]
+            #content = new.body
+            content = None
 
-    for course in courses:
-        courseSplit = course.split()
-        info = webscrape.getAuroraCourse(courseSplit[0], courseSplit[1])
-''' and None
+        if (content != None):
+            courses = findCourses(content)
+            replyCourseInfo = []
 
+            for course in courses:
+                courseSplit = course.split()
 
-result = webscrape.getAuroraCourse('COMP', '2140')
-print(result)
+                print('>' + courseSplit[0] + ' ' + courseSplit[1])
 
-'''
-get = sql.getCourseInfo('COMP', '2140')
+                result = webscrape.getAuroraCourse(courseSplit[0], courseSplit[1])
+                if (result == None):
+                    continue
 
-if (get != None):
-    t = time.time()
-    
-    if (get['last_update'] + (60 * 1) < t):
-        result = webscrape.getAuroraCourse('COMP', '2140')
-        sql.updateCourseInfo(get['id'], result['title'], result['desc'], result['notHeld'], result['preReq'])
-else:
-    result = webscrape.getAuroraCourse('COMP', '2140')
-    sql.insertCourseInfo('COMP', 2140, result['title'], result['desc'], result['notHeld'], result['preReq'])
-''' and None
+                doReply = True
+
+                get = sql.getCourseInfo(courseSplit[0], courseSplit[1])
+
+                if (get != None):
+                    if (get['last_update'] + (60 * 1) < time.time()):
+                        sql.updateCourseInfo(get['id'], result['title'], result['desc'], result['notHeld'], result['preReq'])
+                        replyCourseInfo.append((result['title'], result['desc'], result['notHeld'], result['preReq']))
+                    else:
+                        replyCourseInfo.append((get['title'], get['desc'], get['notHeld'], get['preReq']))
+                else:
+                    sql.insertCourseInfo(courseSplit[0], courseSplit[1], result['title'], result['desc'], result['notHeld'], result['preReq'])
+                    replyCourseInfo.append((result['title'], result['desc'], result['notHeld'], result['preReq']))
+                    
+            if (doReply):
+                doReply = False
+                print('>>>Want to reply to: ' + str(new))
+                
+                replyStr = ''
+
+                for courseInfo in replyCourseInfo:
+                    replyStr = replyStr + '\n' + courseInfo[0] + '|' + courseInfo[1] + '|' + courseInfo[2] + '|' + courseInfo[3]
+
+                new.reply('Course|Description|Not Held With|Prerequisite(s)\n-|-|-|-' + replyStr)
+
+__run__()

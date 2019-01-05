@@ -26,8 +26,8 @@ class SQL:
                 number TINYINT NOT NULL,
                 title TEXT NOT NULL,
                 desc TEXT NOT NULL,
-                not_held TEXT,
-                prereq TEXT,
+                notHeld TEXT,
+                preReq TEXT,
                 last_update DATE NOT NULL
             )
         ''')
@@ -37,17 +37,17 @@ class SQL:
         self.query.execute('SELECT * FROM courses WHERE subject = ? AND number = ? LIMIT 1', (subject, number))
         return self.query.fetchone()
 
-    def insertCourseInfo(self, subject, number, title, desc, not_held, prereq):
+    def insertCourseInfo(self, subject, number, title, desc, notHeld, preReq):
         self.query.execute('''
-            INSERT INTO courses (subject, number, title, desc, not_held, prereq, last_update)
+            INSERT INTO courses (subject, number, title, desc, notHeld, preReq, last_update)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (subject, number, title, desc, not_held, prereq, time.time()))
+        ''', (subject, number, title, desc, notHeld, preReq, time.time()))
         self.db.commit()
 
-    def updateCourseInfo(self, id, title, desc, not_held, prereq):
+    def updateCourseInfo(self, id, title, desc, notHeld, preReq):
         self.query.execute('''
             UPDATE courses
-            SET title = ?, desc = ?, not_held = ?, prereq = ?, last_update = ?
+            SET title = ?, desc = ?, notHeld = ?, preReq = ?, last_update = ?
             WHERE id = ?
-        ''', (title, desc, not_held, prereq, time.time(), id))
+        ''', (title, desc, notHeld, preReq, time.time(), id))
         self.db.commit()

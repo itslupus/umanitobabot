@@ -17,23 +17,44 @@ def getAuroraCourse(subject, number):
     if (response.status_code == 200):
         page = html.fromstring(response.content)
 
-        description = page.xpath('//td[@class="ntdefault"]/text()')[0]
+        title = page.xpath('//td[@class="nttitle"]/text()')
+        summary = page.xpath('//td[@class="ntdefault"]/text()')[0].strip()
 
+        if (len(title) == 0):
+            return None
+            
         results = {}
-        results['title'] = page.xpath('//td[@class="nttitle"]/text()')[0]
-        results['desc'] = description
-        results['notHeld'] = findNotHeld(description)
-        results['preReq'] = findPrereq(description)
+        results['title'] = title[0]
+        results['desc'] = findDescription(summary)
+        results['notHeld'] = findNotHeld(summary)
+        results['preReq'] = findPrereq(summary)
 
         return results
 
     return None
 
-def findNotHeld(desc):
-    match = re.findall(r'(?<=May not be held with )(.*?)\.', desc)
-    return match
+# TODO need to redo these regex
+def findDescription(summary):
+    match = re.findall(r'(.*?)(?:(?= Préalable)|(?= Prerequisite)|(?= May not be held with)|(?= Not to be held with)|(?= On ne peut se faire créditer))', summary)
+    
+    if (len(match) == 0):
+        return 'None'
+    
+    return match[0]
 
-def findPrereq(desc):
+def findNotHeld(summary):
+    match = re.findall(r'(?:(?<=On ne peut se faire créditer )|(?<=Not to be held with )|(?<=May not be held with ))(.*?)\.', summary)
+    
+    if (len(match) == 0):
+        return 'None'
+    
+    return match[0]
+
+def findPrereq(summary):
     # regex HELL
-    match = re.findall(r'(?:(?<=Prerequisite: )|(?<=Prerequisites: ))(.*?)\.', desc)
-    return match
+    match = re.findall(r'(?:(?<=Prerequisite: )|(?<=Prerequisites: )|(?<=Préalable : ))(.*?)\.', summary)
+    
+    if (len(match) == 0):
+        return 'None'
+    
+    return match[0]
