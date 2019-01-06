@@ -34,6 +34,21 @@ def findCourses(string):
 
     return matches
 
+def log(logType, message):
+    # store time and prepare log message
+    t = time.gmtime()
+    output = f'[{t.tm_year}-{t.tm_mon}-{t.tm_mday} {t.tm_hour}:{t.tm_min}:{t.tm_sec}][{logType}] {message}'
+
+    # open log file for writing (append)
+    f = open('f.log', 'a')
+
+    # write log and print
+    f.write(output + '\n')
+    print(output)
+
+    # clean up our toys
+    f.close()
+
 # https://www.reddit.com/r/redditdev/comments/7jng5a/whats_the_best_way_to_monitorreply_to_comments/dr7qn4p/
 # solution from another user to having a stream of comments and submissions
 def customStream(subreddit, **kwargs):
@@ -55,9 +70,11 @@ def __run__():
 
         if (type(new) is praw.models.Submission):
             content = new.title + ' ' + new.selftext
+            log('READ', 'Reading submission ' + str(new))
         elif (type(new) is praw.models.Comment):
             # TODO find comments with [ABCD 1234]
             #content = new.body
+            log('READ', 'Reading comment ' + str(new))
             content = None
 
         if (content != None):
@@ -66,8 +83,6 @@ def __run__():
 
             for course in courses:
                 courseSplit = course.split()
-
-                print('>' + courseSplit[0] + ' ' + courseSplit[1])
 
                 result = webscrape.getAuroraCourse(courseSplit[0], courseSplit[1])
                 if (result == None):
@@ -88,8 +103,9 @@ def __run__():
                     replyCourseInfo.append((result['title'], result['desc'], result['notHeld'], result['preReq']))
                     
             if (doReply):
+                log('REPLY', 'Replying to ' + str(new))
+
                 doReply = False
-                print('>>>Want to reply to: ' + str(new))
                 
                 replyStr = ''
 
