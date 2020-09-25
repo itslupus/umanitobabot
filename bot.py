@@ -65,20 +65,20 @@ def __run__():
     doReply = False
 
     stream = praw.models.util.stream_generator(lambda **kwargs: submissions_and_comments(reddit.subreddit('armpit_test'), **kwargs), skip_existing = True)
-    for new in stream:
-        content = None
+    for newPost in stream:
+        entirePostContent = None
 
-        if (type(new) is praw.models.Submission):
-            content = new.title + ' ' + new.selftext
-            log('READ', 'Reading submission ' + str(new))
-        elif (type(new) is praw.models.Comment):
+        if (type(newPost) is praw.models.Submission):
+            entirePostContent = newPost.title + ' ' + newPost.selftext
+            log('READ', 'Reading submission ' + str(newPost))
+        elif (type(newPost) is praw.models.Comment):
             # TODO find comments with [ABCD 1234]
-            #content = new.body
-            log('READ', 'Reading comment ' + str(new))
-            content = None
+            #entirePostContent = newPost.body
+            log('READ', 'Reading comment ' + str(newPost))
+            entirePostContent = None
 
-        if (content != None):
-            courses = findCourses(content)
+        if (entirePostContent != None):
+            courses = findCourses(entirePostContent)
             replyCourseInfo = []
 
             for course in courses:
@@ -112,6 +112,6 @@ def __run__():
                 for courseInfo in replyCourseInfo:
                     replyStr = replyStr + '\n' + courseInfo[0] + '|' + courseInfo[1] + '|' + courseInfo[2] + '|' + courseInfo[3]
 
-                new.reply('Course|Description|Not Held With|Prerequisite(s)\n-|-|-|-' + replyStr)
+                newPost.reply('Course|Description|Not Held With|Prerequisite(s)\n-|-|-|-' + replyStr)
 
 __run__()
