@@ -64,7 +64,7 @@ def customStream(subreddit, **kwargs):
 def __run__():
     doReply = False
 
-    stream = praw.models.util.stream_generator(lambda **kwargs: submissions_and_comments(reddit.subreddit('armpit_test'), **kwargs), skip_existing = True)
+    stream = praw.models.util.stream_generator(lambda **kwargs: submissions_and_comments(reddit.subreddit('umanitoba'), **kwargs), skip_existing = True)
     for newPost in stream:
         entirePostContent = None
 
